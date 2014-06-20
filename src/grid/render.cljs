@@ -11,7 +11,7 @@
 (defn render-header [header]
   (d/thead {}
            (apply d/tr {}
-                 (map (partial d/th {})  (map :title header)))))
+                 (map (fn [h] (d/th {:className (:className h)} (:title h))) header))))
 
 (q/defcomponent Grid
   [meta data]
@@ -31,11 +31,9 @@
                           :email "frank.bolviken@gmail.com"
                           :country "Norway"}]})
 
-(def my-meta {:header [{:key :email :title "Email"}
+(def my-meta {:header [{:key :email :title "Email" :className "email"}
                        {:key :name :title "Name"}
-
-                    {:key :country :title "Country"}]})
+                       {:key :country :title "Country"}]})
            
-
 (q/render (Grid my-meta my-data)
           (.getElementById js/document "grid"))

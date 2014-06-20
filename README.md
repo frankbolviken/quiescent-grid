@@ -7,6 +7,7 @@ A Clojure library designed to ... print out pretty grid
 Running:
 
 In terminal: lein run
+
 Open new terminal: lein cljsbuild auto
 
 Open up localhost:8666 in your browser.. vólla!

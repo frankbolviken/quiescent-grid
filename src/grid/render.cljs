@@ -4,33 +4,38 @@
 
 
 (q/defcomponent User
-  [user]
-  (d/tr {}
-        (d/td {} (:name user))
-         (d/td {} (:email user))
-         (d/td {} (:country user))))
+  [header data]
+  (apply d/tr {}
+        (map (fn [key] (d/td {} (get data key))) (map :key header))))
+
+(defn render-header [header]
+  (d/thead {}
+           (apply d/tr {}
+                 (map (partial d/th {})  (map :title header)))))
 
 (q/defcomponent Grid
-  [data]
-  (d/div {:className "panel panel-default"}
-         (d/div {:className "panel-heading"} (str "SuperAmazing ClojureScript w/React grid"))
-         (d/table {:className "table"}
-                  (d/thead {}
-                           (d/tr {}
-                                 (d/th {} (str "Name"))
-                                 (d/th {} (str "Email"))
-                                 (d/th {} (str "Country"))))
-                  (apply d/tbody {}
-                         (map User (:users data))))))
+  [meta data]
+  (let [header (:header meta)]
+    (d/div {:className "panel panel-default"}
+           (d/div {:className "panel-heading"} (str "SuperAmazing ClojureScript w/React grid"))
+           (d/table {:className "table"}
+                    (render-header (:header meta))
+                    (apply d/tbody {}
+                           (map (partial User (:header meta)) (:data data)))))))
 
 
-(def my-data {:users [{:name "John Doe"
+(def my-data {:data [{:name "John Doe"
                           :email "user@email.com"
                           :country "USA" }
                          {:name "Frank Bølviken"
                           :email "frank.bolviken@gmail.com"
                           :country "Norway"}]})
 
+(def my-meta {:header [{:key :email :title "Email"}
+                       {:key :name :title "Name"}
 
-(q/render (Grid my-data)
+                    {:key :country :title "Country"}]})
+           
+
+(q/render (Grid my-meta my-data)
           (.getElementById js/document "grid"))

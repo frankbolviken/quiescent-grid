@@ -15,14 +15,12 @@
 
 (q/defcomponent Grid
   [meta data]
-  (let [header (:header meta)]
     (d/div {:className "panel panel-default"}
            (d/div {:className "panel-heading"} (str "SuperAmazing ClojureScript w/React grid"))
            (d/table {:className "table"}
                     (render-header (:header meta))
                     (apply d/tbody {}
-                           (map (partial User (:header meta)) (:data data)))))))
-
+                           (map (partial User (:header meta)) (:data data))))))
 
 (def my-data {:data [{:name "John Doe"
                           :email "user@email.com"
@@ -31,7 +29,9 @@
                           :email "frank.bolviken@gmail.com"
                           :country "Norway"}]})
 
-(def my-meta {:header [{:key :email :title "Email" :className "email"}
+(def my-meta {:header [{:key :email :title "Email"
+                        :className "email"
+                        :onClick (fn [] (...))}
                        {:key :name :title "Name"}
                        {:key :country :title "Country"}]})
            

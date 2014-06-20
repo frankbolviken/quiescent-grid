@@ -8,10 +8,13 @@
   (apply d/tr {}
         (map (fn [key] (d/td {} (get data key))) (map :key header))))
 
+(defn handle-header-click [key]
+  (js/alert "Du klikket header"))
+
 (defn render-header [header]
   (d/thead {}
            (apply d/tr {}
-                 (map (fn [h] (d/th {:className (:className h)} (:title h))) header))))
+                 (map (fn [h] (d/th {:className (:className h) :onClick (:onClick h)} (:title h))) header))))
 
 (q/defcomponent Grid
   [meta data]
@@ -29,12 +32,10 @@
                       :email "frank.bolviken@gmail.com"
                       :country "Norway"}]})
 
-(def my-meta {:header [{:key :email :title "Email"
-                        :className "email"
-                        :onClick (fn [] (...))}
+(def my-meta {:header [{:key :email :title "Email" :className "email" :onClick (fn [event, reactId] (js/alert "Du klikket paa email"))}
                        {:key :name :title "Name"}
                        {:key :country :title "Country"}]})
-           
+
 (q/render (Grid my-meta my-data)
           (.getElementById js/document "grid"))
 

@@ -18,20 +18,23 @@
                                       :onClick (:onClick h)} (:title h)))
                        header))))
 
+(defn render-rows [rows header-meta]
+  (map (fn [row]
+         (Row row header-meta)) rows))
+
 (defn render-body [model]
   (let [header-meta (get-in model [:meta :header])]
     [(apply d/tbody {}
-             (map (fn [row]
-                    (Row row header-meta)) (:data model)))]))
+             (render-rows (:data model) header-meta))]))
 
 (defn render-grouped-body [model f]
   (let [grouped (group-by f (:data model))
         header-meta (get-in model [:meta :header])]
-    (map (fn [[k v]]
+    (map (fn [[k rows]]
             (apply d/tbody {}
                    (cons (d/tr {:className "group-header"}
-                               (d/td {:colSpan (count header-meta)} (str k " (" (count v) ")") ))
-                         (map (fn [r] (Row r header-meta)) v)))) grouped)))
+                               (d/td {:colSpan (count header-meta)} (str k " (" (count rows) ")") ))
+                         (render-rows rows header-meta)))) grouped)))
 
 (q/defcomponent Grid [model]
   (let [header-meta (get-in model [:meta :header])

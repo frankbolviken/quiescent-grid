@@ -4,13 +4,12 @@
 
 (enable-console-print!)
 
-(q/defcomponent User
+(q/defcomponent Row
   [data header-meta]
   (apply d/tr {}
-         (map (fn [header] (d/td {} (if(get header :renderer)
-                                      (#((get header :renderer) (get data (get header :key))))
-                                      (get data (get header :key)))))
-              (partial header-meta))))
+         (map (fn [header] (d/td {} ((get header :renderer identity)
+                                     ((:key header) data))))
+              header-meta)))
 
 (defn render-header [header]
   (d/thead {}
@@ -19,17 +18,32 @@
                                       :onClick (:onClick h)} (:title h)))
                        header))))
 
-(q/defcomponent Grid
-  [model]
+(defn render-body [model]
   (let [header-meta (get-in model [:meta :header])]
+    [(apply d/tbody {}
+             (map (fn [row]
+                    (Row row header-meta)) (:data model)))]))
+
+(defn render-grouped-body [model f]
+  (let [grouped (group-by f (:data model))
+        header-meta (get-in model [:meta :header])]
+    (map (fn [[k v]]
+            (apply d/tbody {}
+                   (cons (d/tr {:className "group-header"}
+                               (d/td {:colSpan (count header-meta)} (str k " (" (count v) ")") ))
+                         (map (fn [r] (Row r header-meta)) v)))) grouped)))
+
+(q/defcomponent Grid [model]
+  (let [header-meta (get-in model [:meta :header])
+        group-by-f (get-in model [:meta :group-by])]
     (d/div {:className "panel panel-default"}
            (d/div {:className "panel-heading"}
                   "SuperAmazing ClojureScript w/React grid")
-           (d/table {:className "table"}
-                    (render-header header-meta)
-                    (apply d/tbody {}
-                           (map (fn [d]
-                                  (User d header-meta)) (:data model)))))))
+           (apply d/table {:className "table"}
+                    (cons (render-header header-meta)
+                          (if group-by-f
+                            (render-grouped-body model group-by-f)
+                            (render-body model)))))))
 
 (defn render-grid [grid-data]
   (q/render (Grid grid-data)
@@ -50,9 +64,8 @@
   (fn [event reactid]
     (render-grid (f column-key))))
 
-(defn create-email-column-renderer [column-key]
-  (fn [key]
-    (d/a {:className "byline" :href key} key)))
+(defn link-renderer [val]
+  (d/a {:className "byline" :href val} val))
 
 (def my-data {:data [{:name "John Doe"
                       :email "user@email.com"
@@ -60,17 +73,25 @@
                      {:name "Frank Bølviken"
                       :email "frank.bolviken@gmail.com"
                       :country "Norway"}
+                      {:name "Jazee"
+                      :email "jz@gmail.com"
+                      :country "Norway"}
                      {:name "SS Assum"
                       :email "sss.bolviken@gmail.com"
                       :country "France"}]
               :meta {:header
-                     [{:key :email :title "Email" :className "email" :onClick
-                       (create-sorter column-sorter :email) :renderer (create-email-column-renderer)}
-                      {:key :name :title "Name"
-                       :onClick
-                       (create-sorter column-sorter :name)}
-                      {:key :country :title "Country"
+                     [{:key :email
+                       :title "Email"
+                       :className "email"
+                       :onClick (create-sorter column-sorter :email)
+                       :renderer link-renderer}
+                      {:key :name
+                       :title "Name"
+                       :onClick (create-sorter column-sorter :name)}
+                      {:key :country
+                       :title "Country"
                        :onClick (create-sorter column-sorter :country)
-                       }]}})
+                       }]
+                     :group-by :country}})
 
 (render-grid  my-data)

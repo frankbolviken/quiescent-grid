@@ -67,8 +67,8 @@
   (fn [event reactid]
     (render-grid (f column-key))))
 
-(defn link-renderer [val]
-  (d/a {:className "byline" :href val} val))
+(defn email-renderer [val]
+  (d/a {:className "byline" :href (str 'mailto: val)} val))
 
 (def my-data {:data [{:name "John Doe"
                       :email "user@email.com"
@@ -87,7 +87,7 @@
                        :title "Email"
                        :className "email"
                        :onClick (create-sorter column-sorter :email)
-                       :renderer link-renderer}
+                       :renderer email-renderer}
                       {:key :name
                        :title "Name"
                        :onClick (create-sorter column-sorter :name)}

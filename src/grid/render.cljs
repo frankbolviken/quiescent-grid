@@ -2,15 +2,20 @@
   (:require [quiescent :as q :include-macros true]
             [quiescent.dom :as d]))
 
+(enable-console-print!)
+
 (q/defcomponent User
   [data header-meta]
   (apply d/tr {}
-         (map (fn [key] (d/td {} (get data key))) (map :key header-meta))))
+         (map (fn [header] (d/td {} (if(get header :renderer)
+                                      (#((get header :renderer) (get data (get header :key))))
+                                      (get data (get header :key)))))
+              (partial header-meta))))
 
 (defn render-header [header]
   (d/thead {}
            (apply d/tr {}
-                  (map (fn [h] (d/th {:className (:className h) 
+                  (map (fn [h] (d/th {:className (:className h)
                                       :onClick (:onClick h)} (:title h)))
                        header))))
 
@@ -36,7 +41,7 @@
   (if (= identity f)
      reverse
      identity))
-  
+
 (defn column-sorter [column]
   (swap! sort-order reverse-sort)
   (update-in my-data [:data] (fn [data] (@sort-order  (sort-by column data)))))
@@ -44,6 +49,10 @@
 (defn create-sorter [f column-key]
   (fn [event reactid]
     (render-grid (f column-key))))
+
+(defn create-email-column-renderer [column-key]
+  (fn [key]
+    (d/a {:className "byline" :href key} key)))
 
 (def my-data {:data [{:name "John Doe"
                       :email "user@email.com"
@@ -56,7 +65,7 @@
                       :country "France"}]
               :meta {:header
                      [{:key :email :title "Email" :className "email" :onClick
-                       (create-sorter column-sorter :email)}
+                       (create-sorter column-sorter :email) :renderer (create-email-column-renderer)}
                       {:key :name :title "Name"
                        :onClick
                        (create-sorter column-sorter :name)}

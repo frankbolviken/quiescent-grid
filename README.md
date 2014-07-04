@@ -1,6 +1,6 @@
 # grid
 
-A Clojure library designed to ... print out pretty grid
+Example project to draw pretty grid with advanced options like sorting and grouping, using ClojureScript and React.
 
 ## Usage
 

@@ -15,7 +15,12 @@
   (d/thead {}
            (apply d/tr {}
                   (map (fn [h] (d/th {:className (:className h)
-                                      :onClick (:onClick h)} (:title h)))
+                                     } (str (:title h))
+                                     (d/div {:className "btn-group" :style {:float "right"}} (d/button {:className "btn btn-default dropdown-toggle" :data-toggle "dropdown"}
+                                               (d/span {:className "caret"})
+                                               (d/span {:className "sr-only"} "Toggle dropdown"))
+                                            (d/ul {:className "dropdown-menu" :role "menu"}
+                                                  (d/li {} (d/a {:onClick (:onClick h)} (str "Sort by " (:title h))))))))
                        header))))
 
 (defn render-rows [rows header-meta]
@@ -61,7 +66,7 @@
 
 (defn column-sorter [column]
   (swap! sort-order reverse-sort)
-  (update-in my-data [:data] (fn [data] (@sort-order  (sort-by column data)))))
+    (update-in my-data [:data] (fn [data] (@sort-order  (sort-by column data)))))
 
 (defn create-sorter [f column-key]
   (fn [event reactid]
@@ -73,7 +78,7 @@
 (def my-data {:data [{:name "John Doe"
                       :email "user@email.com"
                       :country "USA" }
-                     {:name "Frank Bølviken"
+                     {:name "Fran Bølviken"
                       :email "frank.bolviken@gmail.com"
                       :country "Norway"}
                       {:name "Jazee"

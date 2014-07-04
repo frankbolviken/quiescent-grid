@@ -14,8 +14,8 @@
 (defn render-header [header]
   (d/thead {}
            (apply d/tr {}
-                  (map (fn [h] (d/th {:className (:className h)
-                                     } (str (:title h))
+                  (map (fn [h] (d/th {:className (:className h) :style {:text-align "center"}
+                                     } (d/span {:onClick (:onClick h) :style {:cursor "pointer"}} (str (:title h)))
                                      (d/div {:className "btn-group" :style {:float "right"}} (d/button {:className "btn btn-default dropdown-toggle" :data-toggle "dropdown"}
                                                (d/span {:className "caret"})
                                                (d/span {:className "sr-only"} "Toggle dropdown"))
